@@ -1,18 +1,9 @@
-//var db = require('./scratch');
-var watch = require('watch');
+var db = require('./scratch');
 
-//db.init('./db');
+db.init('./db');
 
-watch.createMonitor('./db', function(monitor) {
-  monitor.on('created', function(file, stat) {
-    console.dir(arguments);
-  });
-
-  monitor.on('changed', function(file, curr, prev) {
-    console.dir(arguments);
-  });
-
-  monitor.on('removed', function(file, stat) {
-    console.dir(arguments);
-  });
-});
+db.data = {
+	a: 1,
+	b: 'two',
+	c: ['a', 1]
+}
