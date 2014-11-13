@@ -1,31 +1,36 @@
 /*
-	types of object changes:
-		add
-		delete
-		update
+ * fs.watch events:
+ *    change
+ *    rename
 */
 
+var fs = require('fs');
+var watcher;
+var filer;
+
 module.exports = {
-	persist: function(obj, name) {
-		name = name || 'DB';
+  init: function(path) {
+    path = path || './db';
 
-		console.log('scratch DB = ' + name);
+    fs.exists(path, function(truePath) {
+      if (!truePath) {
+        throw("initial path not found!");
+      }
 
-		Object.observe(obj, theWatcher);
-	}
+      watcher = fs.watch(path, function(event, filename) {
+        console.dir(event);
+        console.dir(filename);
+      });
+
+      fs.getFiles(path, function() {
+        files.forEach(function(file) {
+          fs.watchFile(file, function(curr, prev) {
+            console.dir(arguments);
+          });
+        });
+      });
+    });
+  }
 }
 
-function theWatcher(changes) {
-	var changeType = changes.type || 'unk';
-	var changeProp = obj[changes.name];
 
-	// must register a new watcher for added child objects/arrays
-//	if (changeType === 'add') {
-//		if (typeof changeProp === 'object')
-//			Object.observe(changeProp, theWatcher);
-//	}
-
-	changes.forEach(function(change) {
-		console.log(change.type, change.name, change.oldValue);
-	});
-}

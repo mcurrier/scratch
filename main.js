@@ -1,15 +1,18 @@
-var db = require('./scratch');
+//var db = require('./scratch');
+var watch = require('watch');
 
-var O = {
-	a: 1,
-	b: 2,
-	c: 3
-};
+//db.init('./db');
 
-db.persist(O);
+watch.createMonitor('./db', function(monitor) {
+  monitor.on('created', function(file, stat) {
+    console.dir(arguments);
+  });
 
-O.b = 3;
-O.c = 4;
-O.a = 2;
+  monitor.on('changed', function(file, curr, prev) {
+    console.dir(arguments);
+  });
 
-console.dir(O);
+  monitor.on('removed', function(file, stat) {
+    console.dir(arguments);
+  });
+});
