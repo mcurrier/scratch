@@ -31,29 +31,21 @@ module.exports = {
         // finished walking the tree
         // we're getting a list of files here on startup
         for (var F in file) {
+          F = path.normalize(F);
           if (path.extname(F) === scratchFileExt) {
-            dotPath = getDotPath(F);
-            contents = JSONfile.readFileSync(F);
-            hashUpsert(data, dotPath, contents);
+            pushFileToData(F, data, dotPath, contents);
           }
         }
       } else if (prev === null) {
         // new file
-        dotPath = F.split(path.sep);
-        contents = JSONfile.readFileSync(F);
-        hashUpsert(data, dotPath, contents);
+        pushFileToData(F, data, dotPath, contents);
       } else if (curr.nlink === 0) {
         // file was removed
-        dotPath = F.split(path.sep);
-        contents = JSONfile.readFileSync(F);
-        hashDelete(data, dotPath);
+        pullFileFromData(F, data, dotPath, contents);
       } else {
         // file was changed
-        dotPath = F.split(path.sep);
-        contents = JSONfile.readFileSync(F);
-        hashUpsert(data, dotPath, contents);
+        pushFileToData(F, data, dotPath, contents);
       }
-
 console.dir(data);
     });
 
@@ -67,6 +59,18 @@ console.dir(data);
 */
   },
   data: data
+}
+
+function pullFileFromData(filePath, data, dotPath, contents) {
+  dotPath = getDotPath(filePath);
+  contents = JSONfile.readFileSync(filePath);
+  hashDelete(data, dotPath);
+}
+
+function pushFileToData(filePath, data, dotPath, contents) {
+  dotPath = getDotPath(filePath);
+  contents = JSONfile.readFileSync(filePath);
+  hashUpsert(data, dotPath, contents);
 }
 
 function getDotPath(strPath) {
@@ -89,13 +93,14 @@ function hashUpsert(obj, dotPath, val) {
   for (var I in dotPath) {
     key = dotPath[I];
 
-    O[key] = O[key] || {};
+    if (I < dotPath.length-2) {
+      O[key] = O[key] || {};
 
-    O = O[key];
+      O = O[key];
+    } else {
+      O[key] = val;
+    }
   }
-
-  O = val;
-console.dir(O);
 }
 
 function hashDelete(obj, dotPath) {
